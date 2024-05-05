@@ -13,7 +13,12 @@ on:
       - '**.tf'
 
 jobs:
+
+  Timestamp:
+    uses: storyprotocol/gha-workflows/.github/workflows/reusable-timestamp.yml@main
+
   terraform:
+    needs: [ Timestamp ]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
