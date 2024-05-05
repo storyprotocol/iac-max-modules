@@ -37,8 +37,7 @@ jobs:
       id: format
       run: |
         terraform fmt -recursive
-        echo "::set-output name=updated::$(git status --porcelain | grep '\.tf' | wc -l)"
-      if: failure() # This will run formatting only if the previous fmt check failed
+        echo "updated=$(git status --porcelain | grep '\.tf' | wc -l)" >> $GITHUB_ENV
 
     - name: Commit changes
       uses: stefanzweifel/git-auto-commit-action@v4
@@ -46,4 +45,4 @@ jobs:
         commit_message: Automated Terraform format corrections
         branch: ${{ github.head_ref }}
         file_pattern: '*.tf'
-      if: steps.format.outputs.updated == '1' # This will commit only if formatting changes were made
+      if: env.updated == '1'
