@@ -1,5 +1,5 @@
 locals {
-  bucket_name = "${var.project}-${var.env}-tfstate-${var.region}"
+  bucket_name         = "${var.project}-${var.env}-tfstate-${var.region}"
   dynamodb_table_name = "${var.project}-${var.env}-tflock-${var.region}"
 }
 
