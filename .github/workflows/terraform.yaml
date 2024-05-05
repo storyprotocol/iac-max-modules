@@ -1,0 +1,44 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: "1.8.2"
+
+    - name: Terraform Format Check
+      run: terraform fmt -check
+      continue-on-error: true # This will mark the step as completed even if formatting errors are found
+
+    - name: Terraform Format
+      id: format
+      run: |
+        terraform fmt -recursive
+        echo "::set-output name=updated::$(git status --porcelain | grep '\.tf' | wc -l)"
+      if: failure() # This will run formatting only if the previous fmt check failed
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Automated Terraform format corrections
+        branch: ${{ github.head_ref }}
+        file_pattern: '*.tf'
+      if: steps.format.outputs.updated == '1' # This will commit only if formatting changes were made
