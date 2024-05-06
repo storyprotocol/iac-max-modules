@@ -11,7 +11,7 @@ resource "random_string" "bucket_suffix" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = local.bucket_name + "-" + random_string.bucket_suffix.result
+  bucket = format("%s-%s", local.bucket_name, random_string.bucket_suffix.result)
 
   lifecycle {
     prevent_destroy = true
@@ -26,7 +26,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
 }
 
 resource "aws_dynamodb_table" "table" {
-  name           = local.dynamodb_table_name
+  name           = format("%s-%s", local.dynamodb_table_name, random_string.bucket_suffix.result)
   hash_key       = "LockID"
   read_capacity  = 20
   write_capacity = 20
