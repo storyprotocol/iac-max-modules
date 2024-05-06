@@ -3,8 +3,15 @@ locals {
   dynamodb_table_name = "${var.project}-${var.env}-tflock-${var.region}"
 }
 
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+  numeric = true
+}
+
 resource "aws_s3_bucket" "bucket" {
-  bucket = local.bucket_name
+  bucket = local.bucket_name + "-" + random_string.bucket_suffix.result
 
   lifecycle {
     prevent_destroy = true
