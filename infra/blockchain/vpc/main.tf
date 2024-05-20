@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.region
-}
-
 # Filter out local zones not currently supported
 # with managed node groups
 data "aws_availability_zones" "available" {
@@ -11,20 +7,27 @@ data "aws_availability_zones" "available" {
   }
 }
 
+locals {
+  region  = var.region
+  vpc_cidr = "10.0.0.0/16"
+}
+
 module "iac-max-vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.0.0"
+  version = "5.8.1"
 
   name = "iac-max-vpc"
 
-  cidr = "10.0.0.0/16"
-  azs  = [data.aws_availability_zones.available.names[0]]
+  cidr = local.vpc_cidr
+  azs  = slice(data.aws_availability_zones.available.names, 0, 3)
 
-  public_subnets  = ["10.0.1.0/24"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
+  enable_dns_support = true
 
   tags = {
     Terraform = "true"
